@@ -7,9 +7,9 @@ var app = http.createServer(function(request,response){
     var queryData = url.parse(_url, true).query;
     var pathname = url.parse(_url, true).pathname;
     var title = queryData.id;
-    
+    var list;
     fs.readdir('./data', function(error, filelist){
-        var list ='<ul>';
+        list ='<ul>';
                 for(var i=0;i<filelist.length;i++){
                     list = list + `<li><a href="/?id=${filelist[i]}"> ${filelist[i]} </a></li>`
                 }
