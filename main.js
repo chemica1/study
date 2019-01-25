@@ -56,7 +56,8 @@ var app = http.createServer(function(request,response){
                 var template = templateHTML(title, list,
                                             `<h2>${title}</h2>${description}`,
                                             `<a href="/create">create</a>
-                                            <a href="/update">update</a>
+                                            <a href="/update?id=${title}">update</a>
+
                                             <form action="delete_process" method="post">
                                             <input type="hidden" name="id" value="${title}">
                                             <input type="submit" value="delete">
@@ -112,7 +113,7 @@ var app = http.createServer(function(request,response){
     
         });
         
-    }else if(pathname === '/update'){
+    }else if(pathname === '/update'){  //update버튼 누르면 나오는 부분
        fs.readdir('./data', function(error, filelist){
           fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description){
             var title = queryData.id;
@@ -168,8 +169,8 @@ var app = http.createServer(function(request,response){
               var post = querystring.parse(body);
               var id = post.id;
              fs.unlink(`data/${id}`, function(error){
-                       response.writeHead(302, {Location: `/`});
-                   response.end();
+                 response.writeHead(302, {Location: `/`});
+                 response.end();
              });
   
         });
