@@ -142,21 +142,17 @@ var app = http.createServer(function(request,response){
         });
         request.on('end', function(){
               var post = querystring.parse(body);
-              var dir = post.hidden_id;
+              var hidden_id = post.hidden_id;
               var title = post.title;
               var description = post.description;
-            
-               console.log(post);
-            /*
-            fs.writeFile(`data/${hidden_id}`, description, 'utf8', function(err){
-            response.writeHead(302, {Location: `/?id=${title}`});
-            response.end();
+           
+            fs.rename(`data/${hidden_id}`, `data/${title}`,function(error){
+                fs.writeFile(`data/${title}`, description,'utf8',function(error){
+                   response.writeHead(302, {Location: `/?id=${title}`});
+                   response.end();
+                });
             });
-            */
         });
-        
-        
-        
     }else{
       response.writeHead(404);
       response.end('Not found');
