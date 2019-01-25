@@ -55,7 +55,7 @@ var app = http.createServer(function(request,response){
                 var title = queryData.id;
                 var list = templateList(filelist);
                 var template = templateHTML(title, list, `<h2>${title}</h2>${description}`,`<a href="/create">create</a>
-    <a href="/update">update</a>`);
+                <a href="/update?id=${title}">update</a>`);
                 response.writeHead(200);
                 response.end(template);
               });
@@ -63,12 +63,12 @@ var app = http.createServer(function(request,response){
           }
     }else if(pathname === '/create'){
          fs.readdir('./data', function(error, filelist){
-          var title = 'Welcome';
+          var title = '';
           var description = 'create';
           var list = templateList(filelist);
           var template = templateHTML(title, list,
             `
-            <form action="http://localhost:3000/create_process" method="post">
+            <form action="/create_process" method="post">
             <p>
             <input type = "text" name="title" placeholder="title">
             </p>
@@ -107,6 +107,35 @@ var app = http.createServer(function(request,response){
     
         });
         
+    }else if(pathname === '/update'){
+       fs.readdir('./data', function(error, filelist){
+          fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description){
+            var title = queryData.id;
+            var list = templateList(filelist);//도메인 달면 작동안할수도action을 저렇게..  //textarea 태그에 내용은..
+            var template = templateHTML(title, list,   `
+            <form action="/update_process" method="post"> 
+            <input type = "hidden" name='hidden_id' value="${title}">
+            <p>
+            <input type = "text" name="title" placeholder="title" value="${title}">
+            </p>
+
+            <p>
+                <textarea name="description" placeholder="description" >${description}</textarea>
+            </p>  
+
+            <p>
+                <input type="submit">
+            </p>
+            </form>
+
+            <h2>${title}</h2>
+            ${description}
+          
+            `,``);
+                response.writeHead(200);
+                response.end(template);
+              });
+            });
     }else{
       response.writeHead(404);
       response.end('Not found');
