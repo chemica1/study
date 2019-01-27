@@ -3,6 +3,8 @@ var fs = require('fs');
 var url = require('url');
 var querystring = require('querystring');
 var template = require('./lib/template.js');
+var path = require('path');
+var sanitizeHtml = require('sanitize-html');
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
@@ -22,19 +24,23 @@ var app = http.createServer(function(request,response){
               response.writeHead(200);
               response.end(html);
             })
-          }else{ //컨텐츠를 선택했을때 나오는 부분
+          }else{ //컨텐츠를 선택했을때 나오는 부분 사용자가 직접 만든부분이므로 보안민감
             fs.readdir('./data', function(error, filelist){
-                var filteredID = path.parse(queryData).base;
+             var filteredID = path.parse(queryData.id).base;
               fs.readFile(`data/${filteredID}`, 'utf8', function(err, description){
                 var title = queryData.id;
+                var sanitizedTitle = sanitizeHtml(title);
+                var sanitizedDescription = sanitizeHtml(description,{
+                    allowedTags : ['h1']
+                });
                 var list = template.List(filelist);
                 var html = template.HTML(title, list,
-                                            `<h2>${title}</h2>${description}`,
+                                            `<h2>${sanitizedTitle}</h2>${sanitizedDescription}`,
                                             `<a href="/create">create</a>
-                                            <a href="/update?id=${title}">update</a>
+                                            <a href="/update?id=${sanitizedTitle}">update</a>
 
                                             <form action="delete_process" method="post">
-                                            <input type="hidden" name="id" value="${title}">
+                                            <input type="hidden" name="id" value="${sanitizedTitle}">
                                             <input type="submit" value="delete">
                                             </form>`);
                 response.writeHead(200);
@@ -90,7 +96,7 @@ var app = http.createServer(function(request,response){
         
     }else if(pathname === '/update'){  //update버튼 누르면 나오는 부분
        fs.readdir('./data', function(error, filelist){
-           var filteredID = path.parse(queryData).base;
+           var filteredID = path.parse(queryData.id).base;
           fs.readFile(`data/${filteredID}`, 'utf8', function(err, description){
             var title = queryData.id;
             var list = template.List(filelist);//도메인 달면 작동안할수도action을 저렇게..  //textarea 태그에 내용은..
