@@ -11,7 +11,7 @@ var app = http.createServer(function(request,response){
 
     
     
-    if(pathname === '/'){
+    if(pathname === '/'){  //메인페이지
           if(queryData.id === undefined){
             fs.readdir('./data', function(error, filelist){
               var title = 'Welcome';
@@ -24,7 +24,8 @@ var app = http.createServer(function(request,response){
             })
           }else{ //컨텐츠를 선택했을때 나오는 부분
             fs.readdir('./data', function(error, filelist){
-              fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description){
+                var filteredID = path.parse(queryData).base;
+              fs.readFile(`data/${filteredID}`, 'utf8', function(err, description){
                 var title = queryData.id;
                 var list = template.List(filelist);
                 var html = template.HTML(title, list,
@@ -89,7 +90,8 @@ var app = http.createServer(function(request,response){
         
     }else if(pathname === '/update'){  //update버튼 누르면 나오는 부분
        fs.readdir('./data', function(error, filelist){
-          fs.readFile(`data/${queryData.id}`, 'utf8', function(err, description){
+           var filteredID = path.parse(queryData).base;
+          fs.readFile(`data/${filteredID}`, 'utf8', function(err, description){
             var title = queryData.id;
             var list = template.List(filelist);//도메인 달면 작동안할수도action을 저렇게..  //textarea 태그에 내용은..
             var html = template.HTML(title, list,   `
@@ -141,8 +143,9 @@ var app = http.createServer(function(request,response){
         });
         request.on('end', function(){
               var post = querystring.parse(body);
-              var id = post.id;
-             fs.unlink(`data/${id}`, function(error){
+              var id = post.id; //form 태그에서 받아온 title이름\
+              var filteredID = path.parse(id).base;
+             fs.unlink(`data/${filteredID}`, function(error){  
                  response.writeHead(302, {Location: `/`});
                  response.end();
              });
